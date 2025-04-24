@@ -1,106 +1,107 @@
 
 "use client";
-import * as React from "react";
-import { styled, alpha } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import InputBase from "@mui/material/InputBase";
-import SearchIcon from "@mui/icons-material/Search";
-import { groceryItems } from "@/lib/constants";
-import { Button, Card, CardActions, CardContent, CardMedia, Grid, ListItemText } from "@mui/material";
-import { useCart } from "@/context/CartContext";
+import { useState, FormEvent } from 'react';
+import { 
+  TextField,
+  List,
+  ListItem,
+  ListItemText,
+  InputAdornment,
+  Box,
+  ListItemAvatar,
+  Avatar,
+  CardContent,
+  CardActions,
+  Button
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import Swal from 'sweetalert2';
+import { groceryItems } from '@/lib/constants';
+import { useCart } from '@/context/CartContext';
 
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginLeft: 0,
-  width: "100%",
-  [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(1),
-    width: "auto",
-  },
-}));
-  export default function SearchBar() {
- const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-}));
 
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  width: "100%",
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
-    [theme.breakpoints.up("sm")]: {
-      width: "12ch",
-      "&:focus": {
-        width: "20ch",
-      },
-    },
-  },
-}));
 
-  const [searchTerm, setSearchTerm] = React.useState("");
-  const filteredItems = groceryItems.filter((item) =>
+
+const SearchBar = () => {
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const {  addToCart } = useCart();
+  const filteredItems = groceryItems.filter(item =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
- const {  addToCart } = useCart();
-  return (
-    <Box sx={{ flexGrow: 1 }} component="form">
-      <Search>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        >
-          <Box>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search…"
-            />
-          </Box>
-        </Box>
-      </Search>
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    const term = searchQuery.trim();
     
+    if (!term) {
+      setSearchTerm('');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Empty Search',
+        text: 'Please enter a search term',
+      });
+      return;
+    }
+
+    const results = groceryItems.filter(item => 
+      item.name.toLowerCase().includes(term.toLowerCase())
+    );
+
+    if (results.length === 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Item Not Found',
+      });
+      setSearchTerm('');
+    } else {
+      setSearchTerm(term);
+    }
+  };
+
+  return (
+    <Box 
+      component="form" 
+      onSubmit={handleSubmit}
+      sx={{ maxWidth: 500, margin: 'auto', mt: 4 }}
+    >
+      <TextField
+        fullWidth
+        variant="outlined"
+        placeholder="Search grocery items..."
+        value={searchQuery}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          ),
+        }}
+        sx={{
+          mb: 2,
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 2,
+          },
+        }}
+        aria-label="Search grocery items"
+      />
+
       {searchTerm && (
-        <Box sx={{ mt: 2 }}>
-          {filteredItems.length > 0  ? (
-            groceryItems && groceryItems.map((item) => (
-                 <Grid
-                    container
-                    spacing={{ xs: 2, md: 3 }}
-                    columns={{ xs: 4, sm: 8, md: 12 }}
-                  >
-              <Grid
-              key={item?.id}
-              sx={{ marginTop: "20px" }}
-              size={{ xs: 6, md: 4, lg: 3 }}
-            >
-     <Card key={item.id}>
-       <Card sx={{ maxWidth: 345 }} key={item.id}>
-         <CardMedia
-           sx={{ height: 140 }}
-           image={`${item?.url}`}
-           title="green iguana"
-         />
-         <CardContent>
-           <ListItemText
+        <List sx={{ 
+          bgcolor: 'background.paper',
+          boxShadow: 1,
+          borderRadius: 2,
+          maxHeight: 300,
+          overflow: 'auto',
+        }}>
+          {filteredItems.map((item, index) => (
+            <ListItem key={index} divider>
+              <ListItemAvatar>
+                <Avatar alt={item.name} src={item.url} />
+              </ListItemAvatar>
+              <CardContent>
+       <ListItemText
              primary={item.name}
              secondary={`$${item.price.toFixed(2)}`}
            ></ListItemText>
@@ -114,17 +115,12 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
              Add
            </Button>
          </CardActions>
-       </Card>
-     </Card>
-     </Grid>
-     </Grid>
-            ))
-          
-          ) : (
-            <Box>No items found</Box>
-          )}
-        </Box>
+            </ListItem>
+          ))}
+        </List>
       )}
     </Box>
   );
-}
+};
+
+export default SearchBar;

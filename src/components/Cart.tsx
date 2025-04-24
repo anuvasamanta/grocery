@@ -1,5 +1,6 @@
 
 "use client";
+import ArrowBackSharpIcon from "@mui/icons-material/ArrowBackSharp";
 import { useCart } from "@/context/CartContext";
 import {
   Box,
@@ -14,6 +15,7 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
+import Link from "next/link";
 import React from "react";
 
 interface CartItem {
@@ -79,7 +81,11 @@ function Cart() {
   const totalPriceWithDiscount = total - discount;
 
   return (
+    
     <Box sx={{ p: 3 }}>
+      <Link href="/">
+    <ArrowBackSharpIcon />
+  </Link>
       <Typography variant="h5" gutterBottom sx={{ textAlign: "center", mb: 4 }}>
         Your Cart
       </Typography>
