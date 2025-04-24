@@ -9,7 +9,6 @@ import {
   ListItemText,
 } from "@mui/material";
 import { useState } from "react";
-import Cards from "./Card";
 import { useCart } from "@/context/CartContext";
 
 export default function GroceryFilter() {

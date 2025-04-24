@@ -12,16 +12,13 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useRouter } from "next/navigation";
-import SearchBar from "@/components/SearchBar";
-import GroceryFilter from "@/components/GrosaryFilter";
 import CartIcon from "@/components/CartIcon";
 
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 function Header() {
+  const [isClient, setIsClient] = React.useState(false);
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
   );
@@ -46,6 +43,13 @@ function Header() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+  React.useEffect(() => {
+    setIsClient(true);
+  },[])
+  if (!isClient) {
+    return null;
+}
+
   return (
     <AppBar position="static" sx={{ backgroundColor: "black" }}>
       <Container maxWidth="xl">
@@ -121,7 +125,9 @@ function Header() {
           </Box>
           <Button sx={{ color: "white" }} onClick={handelCart}>
             {" "}
-            <ShoppingCartIcon />
+            {/* <ShoppingCartIcon />
+             */}
+             <CartIcon/>
           </Button>
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
